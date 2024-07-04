@@ -10,26 +10,28 @@ const changeRequest = asyncHandler(async (req, res) => {
   if (!(requestRoomNumber && requestblockNumber)) {
     throw new ApiError(400, "All the fields are required!!!");
   }
-  const user = await User.findById(req.validUser._id);
-
-  if (
-    (requestblockNumber.toString() && requestblockNumber.toString()) ===
-    (user.blockNumber.toString() && user.blockNumber.toString())
-  ) {
-    throw new ApiError(400, "It has same  blockNumber and roomNumber!!");
+  const user = await User.findOne({
+    roomNumber: requestRoomNumber,
+    blockNumber: requestblockNumber,
+  });
+  if (user) {
+    throw new ApiError(
+      400,
+      "Request rommNumber and blockNumber are same as Registering Number!!!"
+    );
   }
-
-  if (user.currentOccupant) {
-    throw new ApiError(400, "User already has a room assigned!!!");
+  const users = await User.findById(req.validUser?._id);
+  if (users.currentOccupant) {
+    throw new ApiError(400, "Room is already occupied to User!!!");
   }
   const changeRoom = await ChangeRoom.create({
     requestblockNumber,
     requestRoomNumber,
     user: req.validUser?._id,
   });
-  user.currentOccupant = changeRoom._id;
+  users.currentOccupant = changeRoom._id;
 
-  await user.save();
+  await users.save();
 
   const createChangeRoom = await ChangeRoom.findById(changeRoom?._id).populate(
     "user"
@@ -51,7 +53,9 @@ const adminAcceptOrReject = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid request Id!!!");
   }
   const changeRequest = await ChangeRoom.findById(requestId);
-
+  if (!changeRequest) {
+    throw new ApiError(400, "user has not request to change room!!!");
+  }
   changeRequest.status = !changeRequest.status;
   await changeRequest.save();
   return res
