@@ -52,7 +52,18 @@ const adminAcceptOrReject = asyncHandler(async (req, res) => {
   if (!isValidObjectId(requestId)) {
     throw new ApiError(400, "Invalid request Id!!!");
   }
+  const user = await User.find();
+
   const changeRequest = await ChangeRoom.findById(requestId);
+  if (
+    user.roomNumber === changeRequest.requestRoomNumber &&
+    user.blockNumber === changeRequest.blockNumber
+  ) {
+    throw new ApiError(
+      400,
+      "room and block number is not empty so you can't perform this action!!!"
+    );
+  }
   if (!changeRequest) {
     throw new ApiError(400, "user has not request to change room!!!");
   }
