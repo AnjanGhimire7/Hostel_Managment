@@ -15,6 +15,10 @@ if (cluster.isPrimary) {
   for (let i = 0; i < totalCpu; i++) {
     cluster.fork();
   }
+  cluster.on("exit", (worker, code, signal) => {
+    console.log(`Worker process ${worker.process.pid} died. Restarting...`);
+    cluster.fork();
+  });
 } else {
   connectDB()
     .then(() => {
@@ -25,4 +29,5 @@ if (cluster.isPrimary) {
     .catch((error) => {
       console.log("Mongodb connection failed!!!", error);
     });
+  console.log(`Worker ${process.pid} is running`);
 }
