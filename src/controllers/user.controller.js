@@ -6,6 +6,9 @@ import { User } from "../models/user.model.js";
 import { Staff } from "../models/staff.model.js";
 import { HostelFee } from "../models/hostelFee.model.js";
 import mongoose, { isValidObjectId } from "mongoose";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
+import { error, log } from "console";
 const generatedAccessToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -265,6 +268,41 @@ const getHostelFee = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, getFee, "Successfully fetched Hostel fee!!!"));
 });
+const forgetPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const token = crypto.randomBytes(20).toString("hex");
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+  user.resetPasswordToken = token;
+  user.resetPasswordExpires = Date.now() + 60000;
+  await user.save();
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    port: 587,
+    auth: {
+      user: process.env.USER,
+      pass: process.env.PASS,
+    },
+  });
+  const mailOptions = {
+    from: process.env.USER,
+    to: email,
+    subject: "Password Reset",
+    text: "you have requested it because you have requested to reset password!!!",
+  };
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, info?.response, "Email sent!!!"));
+  });
+});
 export {
   registerUser,
   loginUser,
@@ -274,4 +312,5 @@ export {
   changeCurrentPassword,
   getAllStaff,
   getHostelFee,
+  forgetPassword,
 };
