@@ -72,6 +72,12 @@ const userSchema = new mongoose.Schema(
       ref: "ChangeRoom",
       default: null,
     },
+    resetPasswordToken:{
+      type:String
+    },
+    resetPasswordExpires:{
+      type:Date
+    }
   },
   {
     timestamps: true,

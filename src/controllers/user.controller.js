@@ -275,16 +275,18 @@ const forgetPassword = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-  user.resetPasswordToken = token;
-  user.resetPasswordExpires = Date.now() + 60000;
+  const hashToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  user.resetPasswordToken = hashToken;
+  user.resetPasswordExpires = Date.now() + 1000 * 10; // for 10 min
   await user.save();
 
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.ethereal.email",
     port: 587,
     auth: {
-      user: process.env.USER,
-      pass: process.env.PASS,
+      user: "corbin57@ethereal.email",
+      pass: "NkUZCYHrWUyTumDmQ1",
     },
   });
   const mailOptions = {
@@ -292,16 +294,50 @@ const forgetPassword = asyncHandler(async (req, res) => {
     to: email,
     subject: "Password Reset",
     text: "you have requested it because you have requested to reset password!!!",
+    html:
+      '<p> Please copy the link and <a href="http://localhost:4000/api/v1/users/reset-password?token=' +
+      token +
+      '"> and reset your password </a>',
   };
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
+    } else {
     }
-
-    return res
-      .status(200)
-      .json(new ApiResponse(200, info?.response, "Email sent!!!"));
+    return res.status(200).json(new ApiResponse(200, {}, "Email sent!!!"));
   });
+});
+const restPassword = asyncHandler(async (req, res) => {
+  const token = crypto
+    .createHash("sha256")
+    .update(req.query.token)
+    .digest("hex");
+
+  const { newPassword, confirmPassword } = req.body;
+  if (!token) {
+    throw new ApiError(400, "token didn't recieved");
+  }
+  const tokenData = await User.findOne({
+    resetPasswordToken: token,
+  });
+
+  if (!tokenData) {
+    throw new ApiError(500, "The token has expired!!!");
+  }
+  if (newPassword !== confirmPassword) {
+    throw new ApiError(
+      402,
+      "newPassword and confirm password doesn't match!!!"
+    );
+  }
+  (tokenData.resetPasswordToken = undefined),
+    (tokenData.resetPasswordExpires = undefined);
+  (tokenData.password = newPassword),
+    await tokenData.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Successfully reset password!!!"));
 });
 export {
   registerUser,
@@ -313,4 +349,5 @@ export {
   getAllStaff,
   getHostelFee,
   forgetPassword,
+  restPassword,
 };
