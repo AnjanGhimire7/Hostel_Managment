@@ -280,15 +280,14 @@ const forgetPassword = asyncHandler(async (req, res) => {
   user.resetPasswordToken = hashToken;
   user.resetPasswordExpires = Date.now() + 1000 * 10; // for 10 min
   await user.save();
-
   const transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
+    host: 'smtp.ethereal.email',
     port: 587,
     auth: {
-      user: "corbin57@ethereal.email",
-      pass: "NkUZCYHrWUyTumDmQ1",
-    },
-  });
+        user: 'sheldon.wisoky7@ethereal.email',
+        pass: '9pkjXfGzgZUY9rqjWZ'
+    }
+});
   const mailOptions = {
     from: process.env.USER,
     to: email,
