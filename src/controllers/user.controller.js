@@ -281,15 +281,15 @@ const forgetPassword = asyncHandler(async (req, res) => {
   user.resetPasswordExpires = Date.now() + 1000 * 10; // for 10 min
   await user.save();
   const transporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
+    host: 'smtp.gmail.com',
     port: 587,
     auth: {
-        user: 'sheldon.wisoky7@ethereal.email',
-        pass: '9pkjXfGzgZUY9rqjWZ'
+        user: 'your gmail user',
+        pass: 'your pass'
     }
 });
   const mailOptions = {
-    from: process.env.USER,
+    from: 'your gmail user',
     to: email,
     subject: "Password Reset",
     text: "you have requested it because you have requested to reset password!!!",
