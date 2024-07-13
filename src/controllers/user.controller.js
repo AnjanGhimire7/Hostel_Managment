@@ -284,12 +284,12 @@ const forgetPassword = asyncHandler(async (req, res) => {
     host: 'smtp.gmail.com',
     port: 587,
     auth: {
-        user: 'your gmail user',
-        pass: 'your pass'
+        user: process.env.USER,
+        pass: process.env.PASS
     }
 });
   const mailOptions = {
-    from: 'your gmail user',
+    from: process.env.USER,
     to: email,
     subject: "Password Reset",
     text: "you have requested it because you have requested to reset password!!!",
