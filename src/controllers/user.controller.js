@@ -8,7 +8,10 @@ import { HostelFee } from "../models/hostelFee.model.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import { error, log } from "console";
+import dotenv from "dotenv";
+dotenv.config({
+  path: "./.env",
+});
 const generatedAccessToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -281,13 +284,13 @@ const forgetPassword = asyncHandler(async (req, res) => {
   user.resetPasswordExpires = Date.now() + 1000 * 10; // for 10 min
   await user.save();
   const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: "smtp.gmail.com",
     port: 587,
     auth: {
-        user: process.env.USER,
-        pass: process.env.PASS
-    }
-});
+      user: process.env.USER,
+      pass: process.env.PASS,
+    },
+  });
   const mailOptions = {
     from: process.env.USER,
     to: email,
