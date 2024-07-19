@@ -8,10 +8,7 @@ import { HostelFee } from "../models/hostelFee.model.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-dotenv.config({
-  path: "./.env",
-});
+
 const generatedAccessToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -287,8 +284,8 @@ const forgetPassword = asyncHandler(async (req, res) => {
     host: "smtp.gmail.com",
     port: 587,
     auth: {
-      user: process.env.USER,
-      pass: process.env.PASS,
+      user: "your gmail username",
+      pass: "your app pass",
     },
   });
   const mailOptions = {
