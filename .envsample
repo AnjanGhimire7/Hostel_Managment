@@ -7,4 +7,4 @@ CLOUDINARY_API_SECRET=<your api secret>
 ACCESS_TOKEN_SECRET=SJAJAJJSJSALLSAJ
 ACCESS_TOKEN_EXPIRY=11d
 USER=<your username>
-PASS=<your pass >
+PASS=<your pass>
