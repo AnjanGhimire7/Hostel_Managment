@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-
+import sanitizer from "sanitizer";
+import xss from "xss";
 const app = express();
 
 app.use(
@@ -12,6 +13,8 @@ app.use(
   })
 );
 app.use(helmet());
+app.use(sanitizer());
+app.use(xss());
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
